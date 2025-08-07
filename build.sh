@@ -81,7 +81,7 @@ run_service() {
     local service=$1
     if [ -z "$service" ]; then
         print_error "Service name is required"
-        echo "Available services: auth-service, user-service, post-service, message-service, media-service, gateway"
+        echo "Available services: backend/auth-service, backend/user-service, backend/post-service, backend/message-service, backend/media-service, backend/gateway"
         exit 1
     fi
 

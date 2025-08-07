@@ -42,7 +42,7 @@ services:
   # Authentication Service
   auth-service:
     build:
-      context: ./auth-service
+      context: ./backend/auth-service
       dockerfile: Dockerfile
     container_name: devsocial-auth-service
     ports:
@@ -76,7 +76,7 @@ services:
   # User Service
   user-service:
     build:
-      context: ./user-service
+      context: ./backend/user-service
       dockerfile: Dockerfile
     container_name: devsocial-user-service
     ports:
@@ -108,7 +108,7 @@ services:
   # Post Service
   post-service:
     build:
-      context: ./post-service
+      context: ./backend/post-service
       dockerfile: Dockerfile
     container_name: devsocial-post-service
     ports:
@@ -143,7 +143,7 @@ services:
   # Message Service
   message-service:
     build:
-      context: ./message-service
+      context: ./backend/message-service
       dockerfile: Dockerfile
     container_name: devsocial-message-service
     ports:
@@ -179,7 +179,7 @@ services:
   # Media Service
   media-service:
     build:
-      context: ./media-service
+      context: ./backend/media-service
       dockerfile: Dockerfile
     container_name: devsocial-media-service
     ports:
@@ -214,7 +214,7 @@ services:
   # API Gateway
   gateway:
     build:
-      context: ./gateway
+      context: ./backend/gateway
       dockerfile: Dockerfile
     container_name: devsocial-gateway
     ports:
