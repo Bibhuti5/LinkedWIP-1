@@ -576,9 +576,22 @@ kubectl apply -f infrastructure/kubernetes/
 
 - **[🏗️ Architecture Overview](docs/ARCHITECTURE.md)** - Detailed system architecture
 - **[📁 File Structure](docs/FILE_STRUCTURE.md)** - Complete project structure
-- **[🔌 API Documentation](docs/API_DOCUMENTATION.md)** - API endpoints and usage
+- **[🔌 API Documentation](docs/API_DOCUMENTATION.md)** - Complete API reference with Swagger
 - **[🚀 Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment
 - **[🧪 Testing Guide](frontend/web/TESTING.md)** - Frontend testing instructions
+
+### 📖 **Interactive API Documentation (Swagger)**
+
+All backend services include comprehensive Swagger/OpenAPI documentation:
+
+| Service | Swagger UI | Description |
+|---------|------------|-------------|
+| 🚪 **API Gateway** | [localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) | Unified API access point |
+| 🔐 **Auth Service** | [localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html) | Authentication & authorization |
+| 👤 **User Service** | [localhost:8082/swagger-ui.html](http://localhost:8082/swagger-ui.html) | User profiles & social features |
+| 📝 **Post Service** | [localhost:8083/swagger-ui.html](http://localhost:8083/swagger-ui.html) | Content management & interactions |
+| 💬 **Message Service** | [localhost:8084/swagger-ui.html](http://localhost:8084/swagger-ui.html) | Real-time messaging |
+| 🎥 **Media Service** | [localhost:8085/swagger-ui.html](http://localhost:8085/swagger-ui.html) | Media processing & storage |
 
 ---
 

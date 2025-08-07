@@ -5,6 +5,8 @@ server:
 spring:
   application:
     name: message-service
+    version: 1.0.0
+    description: Real-time Messaging and Communication Service
   
   # Database Configuration
   datasource:

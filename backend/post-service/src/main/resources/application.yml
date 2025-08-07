@@ -5,6 +5,8 @@ server:
 spring:
   application:
     name: post-service
+    version: 1.0.0
+    description: Content Management and Social Interaction Service
   
   # Database Configuration
   datasource:
@@ -182,3 +184,20 @@ spring:
 logging:
   level:
     com.devsocial.post: WARN
+
+---
+# Swagger/OpenAPI Configuration (All Profiles)
+swagger:
+  api:
+    version: 1.0.0
+    description: "DevSocial Post Management API - Handles content creation, media attachments, comments, and social interactions"
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+    filter: true

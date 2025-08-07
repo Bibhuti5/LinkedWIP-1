@@ -6,6 +6,14 @@ import com.devsocial.auth.dto.SignupRequest;
 import com.devsocial.auth.service.AuthService;
 import com.devsocial.auth.service.UserService;
 import com.devsocial.common.dto.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +44,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "User authentication and authorization endpoints")
 public class AuthController {
     
     private final AuthService authService;
@@ -72,6 +81,46 @@ public class AuthController {
      * @param loginRequest User login credentials
      * @return ResponseEntity with authentication tokens and user info
      */
+    @Operation(
+        summary = "User Login",
+        description = "Authenticate user with username/email and password. Returns JWT access and refresh tokens upon successful authentication.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "User login credentials",
+            required = true,
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = LoginRequest.class),
+                examples = @ExampleObject(
+                    name = "Login Example",
+                    value = "{\n  \"usernameOrEmail\": \"john@example.com\",\n  \"password\": \"securePassword123\",\n  \"rememberMe\": true\n}"
+                )
+            )
+        )
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Login successful",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    name = "Success Response",
+                    value = "{\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"data\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"tokenType\": \"Bearer\",\n    \"expiresIn\": 86400,\n    \"user\": {\n      \"id\": 1,\n      \"username\": \"johndoe\",\n      \"email\": \"john@example.com\",\n      \"firstName\": \"John\",\n      \"lastName\": \"Doe\"\n    }\n  },\n  \"timestamp\": \"2024-01-01T12:00:00Z\"\n}"
+                )
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "401",
+            description = "Invalid credentials",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    name = "Error Response",
+                    value = "{\n  \"success\": false,\n  \"message\": \"Invalid username or password\",\n  \"statusCode\": 401,\n  \"timestamp\": \"2024-01-01T12:00:00Z\"\n}"
+                )
+            )
+        )
+    })
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         log.info("Login attempt for user: {}", loginRequest.getUsernameOrEmail());
