@@ -227,4 +227,16 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
      */
     @Query("SELECT COUNT(up) FROM UserProfile up WHERE up.createdAt >= :startOfDay")
     long countProfilesCreatedToday(@Param("startOfDay") LocalDateTime startOfDay);
+    
+    /**
+     * Finds user suggestions excluding already followed users
+     * 
+     * @param excludeUserIds Set of user IDs to exclude
+     * @param pageable Pagination information
+     * @return Page of suggested user profiles
+     */
+    @Query("SELECT up FROM UserProfile up " +
+           "WHERE up.isPublic = true AND up.userId NOT IN :excludeUserIds " +
+           "ORDER BY up.followersCount DESC, up.githubStars DESC NULLS LAST")
+    Page<UserProfile> findSuggestionsForUser(@Param("excludeUserIds") Set<Long> excludeUserIds, Pageable pageable);
 }
