@@ -40,13 +40,11 @@
     "allowUnreachableCode": false
   },
   "include": [
-    "src",
-    "vite.config.ts",
-    "vitest.config.ts"
+    "src"
   ],
   "exclude": [
     "node_modules",
-    "dist",
+    "dist",  "vite.config.ts",
     "build"
   ],
   "references": [
