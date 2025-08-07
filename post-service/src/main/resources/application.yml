@@ -1,0 +1,184 @@
+# Post Service Configuration
+server:
+  port: 8083
+
+spring:
+  application:
+    name: post-service
+  
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/devsocial_post
+    username: ${DB_USERNAME:devsocial}
+    password: ${DB_PASSWORD:devsocial123}
+    driver-class-name: org.postgresql.Driver
+  
+  # JPA/Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+    open-in-view: false
+  
+  # File Upload Configuration
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 500MB
+      enabled: true
+  
+  # Redis Configuration for Caching
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 2
+      timeout: 2000ms
+  
+  # Cache Configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000  # 5 minutes
+      cache-null-values: false
+    cache-names:
+      - posts
+      - trending-posts
+      - post-comments
+      - user-posts
+
+# AWS S3 Configuration
+aws:
+  s3:
+    bucket-name: ${AWS_S3_BUCKET:devsocial-media}
+    region: ${AWS_REGION:us-east-1}
+    access-key: ${AWS_ACCESS_KEY:}
+    secret-key: ${AWS_SECRET_KEY:}
+    cdn-domain: ${AWS_CLOUDFRONT_DOMAIN:}
+
+# Media Processing Configuration
+media:
+  processing:
+    enabled: true
+    max-video-duration: 600  # 10 minutes
+    max-image-size: 10485760  # 10MB
+    allowed-video-formats: mp4,webm,mov,avi
+    allowed-image-formats: jpg,jpeg,png,gif,webp
+    thumbnail:
+      width: 320
+      height: 240
+      quality: 80
+
+# Content Configuration
+content:
+  moderation:
+    enabled: true
+    auto-approve: false
+  trending:
+    algorithm: engagement-weighted
+    time-window-hours: 24
+    min-interactions: 5
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:devSocialSecretKeyThatIsVeryLongAndSecureForProductionUseWithAtLeast256Bits}
+  expiration: 86400000  # 24 hours
+
+# CORS Configuration
+cors:
+  allowed-origins: 
+    - http://localhost:3000
+    - http://localhost:3001
+    - ${FRONTEND_URL:http://localhost:3000}
+
+# Logging Configuration
+logging:
+  level:
+    com.devsocial.post: INFO
+    org.springframework.web: DEBUG
+  file:
+    name: logs/post-service.log
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# Application Information
+info:
+  app:
+    name: Post Service
+    description: DevSocial Content Management and Social Interaction Service
+    version: 1.0.0
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+  
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+logging:
+  level:
+    com.devsocial.post: DEBUG
+
+---
+# Docker Profile
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/devsocial_post
+    
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+server:
+  port: 8083
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    com.devsocial.post: WARN
