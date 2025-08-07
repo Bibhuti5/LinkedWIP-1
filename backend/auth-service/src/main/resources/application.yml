@@ -1,0 +1,213 @@
+# Authentication Service Configuration
+# This file contains all configuration settings for the authentication service
+
+server:
+  port: 8081
+  servlet:
+    context-path: /
+  error:
+    include-message: always
+    include-binding-errors: always
+
+spring:
+  application:
+    name: auth-service
+    version: 1.0.0
+    description: Authentication and Authorization Service
+  
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/devsocial_auth
+    username: ${DB_USERNAME:devsocial}
+    password: ${DB_PASSWORD:devsocial123}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      leak-detection-threshold: 60000
+  
+  # JPA/Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update  # Use 'validate' in production
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+  
+  # OAuth2 Configuration
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_CLIENT_ID:your_github_client_id}
+            client-secret: ${GITHUB_CLIENT_SECRET:your_github_client_secret}
+            scope:
+              - user:email
+              - read:user
+            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+            client-name: GitHub
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:your_google_client_id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:your_google_client_secret}
+            scope:
+              - openid
+              - email
+              - profile
+            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+            client-name: Google
+        provider:
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+            user-name-attribute: id
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://www.googleapis.com/oauth2/v4/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:devSocialSecretKeyThatIsVeryLongAndSecureForProductionUseWithAtLeast256Bits}
+  expiration: 86400000  # 24 hours in milliseconds
+  refresh-expiration: 604800000  # 7 days in milliseconds
+
+# Application Specific Configuration
+app:
+  oauth2:
+    # Frontend URL for OAuth2 redirects
+    authorizedRedirectUri: ${FRONTEND_URL:http://localhost:3000}/auth/oauth2/redirect
+  cors:
+    # Allowed origins for CORS (configure for production)
+    allowedOrigins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001}
+
+# Logging Configuration
+logging:
+  level:
+    com.devsocial: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/auth-service.log
+    max-size: 10MB
+    max-history: 30
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true
+    git:
+      mode: full
+
+# Info for Actuator
+info:
+  app:
+    name: DevSocial Authentication Service
+    description: Authentication and authorization service for DevSocial platform
+    version: 1.0.0
+    developer: DevSocial Team
+
+# Development Profile Configuration
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  
+  # H2 Database for development
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+    driver-class-name: org.h2.Driver
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+logging:
+  level:
+    com.devsocial: DEBUG
+    org.springframework.security: DEBUG
+
+---
+# Production Profile Configuration
+spring:
+  config:
+    activate:
+      on-profile: prod
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate  # Never auto-create tables in production
+    show-sql: false
+  
+  # Production database configuration
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/devsocial_auth_prod}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+logging:
+  level:
+    com.devsocial: INFO
+    org.springframework.security: WARN
+    org.hibernate: WARN
+  file:
+    name: /var/log/auth-service/auth-service.log
+
+# Security settings for production
+jwt:
+  secret: ${JWT_SECRET}  # Must be provided via environment variable
+
+app:
+  oauth2:
+    authorizedRedirectUri: ${FRONTEND_URL}/auth/oauth2/redirect
+
+# Swagger/OpenAPI Configuration
+swagger:
+  api:
+    version: 1.0.0
+    description: "DevSocial Authentication & Authorization API - Handles user registration, login, JWT tokens, and OAuth2 integration"
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+    filter: true
+  cors:
+    allowedOrigins: ${CORS_ALLOWED_ORIGINS}
