@@ -1,0 +1,38 @@
+trigger:
+  branches:
+    include:
+      - cursor/develop-a-developer-social-platform-with-java-spring-boot-9d8f
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '18.x'
+    displayName: 'Install Node.js'
+
+  - script: |
+      npm install
+      npm run build
+    displayName: 'Install dependencies and build React app'
+
+  - task: CopyFiles@2
+    inputs:
+      contents: 'build/**'
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
+    displayName: 'Copy build files'
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'drop'
+    displayName: 'Publish build artifacts'
+
+  - task: AzureWebApp@1
+    inputs:
+      azureSubscription: '<YOUR_AZURE_SERVICE_CONNECTION>'
+      appType: 'webAppLinux'
+      appName: '<YOUR_APP_SERVICE_NAME>'
+      package: '$(Build.ArtifactStagingDirectory)'
+    displayName: 'Deploy to Azure Web App'

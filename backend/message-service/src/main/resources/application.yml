@@ -1,0 +1,228 @@
+# Message Service Configuration
+server:
+  port: 8084
+
+spring:
+  application:
+    name: message-service
+    version: 1.0.0
+    description: Real-time Messaging and Communication Service
+  
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/devsocial_message
+    username: ${DB_USERNAME:devsocial}
+    password: ${DB_PASSWORD:devsocial123}
+    driver-class-name: org.postgresql.Driver
+  
+  # JPA/Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+    open-in-view: false
+  
+  # Redis Configuration for WebSocket sessions and caching
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 3
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  
+  # Cache Configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000  # 10 minutes
+      cache-null-values: false
+    cache-names:
+      - conversations
+      - messages
+      - online-users
+      - typing-indicators
+
+# WebSocket Configuration
+websocket:
+  allowed-origins:
+    - http://localhost:3000
+    - http://localhost:3001
+    - ${FRONTEND_URL:http://localhost:3000}
+  heartbeat:
+    client: 10000  # 10 seconds
+    server: 10000  # 10 seconds
+  disconnect-delay: 60000  # 1 minute
+
+# Message Configuration
+messaging:
+  max-message-length: 4000
+  max-attachment-size: 50MB
+  typing-timeout: 3000  # 3 seconds
+  delivery-timeout: 30000  # 30 seconds
+  retention:
+    days: 365  # Keep messages for 1 year
+  rate-limit:
+    messages-per-minute: 60
+    burst-capacity: 100
+
+# Real-time Features
+realtime:
+  presence:
+    enabled: true
+    timeout: 300000  # 5 minutes
+  typing-indicators:
+    enabled: true
+    timeout: 3000  # 3 seconds
+  read-receipts:
+    enabled: true
+  push-notifications:
+    enabled: true
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:devSocialSecretKeyThatIsVeryLongAndSecureForProductionUseWithAtLeast256Bits}
+  expiration: 86400000  # 24 hours
+
+# CORS Configuration
+cors:
+  allowed-origins: 
+    - http://localhost:3000
+    - http://localhost:3001
+    - ${FRONTEND_URL:http://localhost:3000}
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - "*"
+  allow-credentials: true
+
+# Logging Configuration
+logging:
+  level:
+    com.devsocial.message: INFO
+    org.springframework.web: DEBUG
+    org.springframework.messaging: DEBUG
+    org.springframework.websocket: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/message-service.log
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,websocket
+  endpoint:
+    health:
+      show-details: always
+  health:
+    redis:
+      enabled: true
+    db:
+      enabled: true
+
+# Application Information
+info:
+  app:
+    name: Message Service
+    description: DevSocial Real-time Messaging and Communication Service
+    version: 1.0.0
+    contact:
+      name: DevSocial Team
+      email: team@devsocial.com
+
+# Async Configuration
+async:
+  core-pool-size: 5
+  max-pool-size: 20
+  queue-capacity: 500
+  thread-name-prefix: MessageService-
+
+# Pagination Configuration
+pagination:
+  default-page-size: 50
+  max-page-size: 200
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+  
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+logging:
+  level:
+    com.devsocial.message: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.messaging: DEBUG
+    org.springframework.websocket: DEBUG
+
+---
+# Docker Profile
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/devsocial_message
+    
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+server:
+  port: 8084
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    com.devsocial.message: WARN
+    org.springframework.web: WARN
+    org.springframework.messaging: WARN
